@@ -1,21 +1,29 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #f4f4f9;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     margin: 0;
+    color: #2d3748;
 }
 
 .container {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     text-align: center;
     width: 90%;
-    max-width: 400px;
+    max-width: 450px;
+    backdrop-filter: blur(10px);
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+}
+
+.container:hover {
+    transform: translateY(-5px);
 }
 
 h1 {
@@ -25,26 +33,35 @@ h1 {
 
 #question-box {
     margin: 20px 0;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #e9e9e9;
+    padding: 20px;
+    border: none;
+    border-radius: 12px;
+    background-color: #f8f9fa;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 #question {
-    font-size: 1.2em;
+    font-size: 1.4em;
     font-weight: bold;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    color: #2d3748;
 }
 
 #answer-input {
-    padding: 10px;
+    padding: 12px;
     width: 80%;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    margin-bottom: 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
     text-align: center;
-    font-size: 1em;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+}
+
+#answer-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
 }
 
 button {
