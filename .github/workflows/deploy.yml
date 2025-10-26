@@ -1,39 +1,45 @@
 # Workflow name
-name: Deploy to GitHub Pages
+name: Deploy Static Site to GitHub Pages (main branch)
 
 # Trigger the workflow on pushes to the 'main' branch
 on:
   push:
     branches:
       - main
+  # Allow manual trigger
   workflow_dispatch:
+
+# Grant the GITHUB_TOKEN write permissions for Pages deployment
+permissions:
+  contents: read
+  pages: write # Grants permission to deploy to GitHub Pages
+  id-token: write # Required for deployment authentication
 
 # Define a single job for deployment
 jobs:
-  deploy:
+  # The 'build' job collects the static files
+  build:
     runs-on: ubuntu-latest
-    
-    # REQUIRED: Grant the GITHUB_TOKEN write permissions
-    permissions:
-      contents: write
-
-    # Steps for the job
     steps:
-      # Step 1: Checkout the repository code
       - name: Checkout repository
         uses: actions/checkout@v4
-        
-      # Step 2: Setup Node.js 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      
+      # The 'upload-pages-artifact' action uploads your files for deployment
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          node-version: '20'
+          # The directory to deploy. Since your files are in the root, use '.'
+          path: '.'
 
-      # Step 3: Deploy the static files to GitHub Pages
+  # The 'deploy' job publishes the artifact to GitHub Pages
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build # This job depends on the 'build' job completing successfully
+
+    steps:
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: .
-          force_orphan: true
+        id: deployment
+        uses: actions/deploy-pages@v4 # The official GitHub Pages deploy action
