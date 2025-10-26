@@ -1,0 +1,43 @@
+# Workflow name
+name: Deploy to GitHub Pages
+
+# Trigger the workflow on pushes to the 'main' branch
+on:
+  push:
+    branches:
+      - main
+  # Allow manual trigger from the GitHub Actions tab
+  workflow_dispatch:
+
+# Define a single job for deployment
+jobs:
+  deploy:
+    # Run on the latest stable version of Ubuntu
+    runs-on: ubuntu-latest
+
+    # Steps for the job
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      # Step 2: Set up Node.js (required by the deployment action, though we don't use it to build)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Step 3: Deploy the static files to GitHub Pages
+      # The "peaceiris/actions-gh-pages" action handles pushing the files 
+      # from the current directory to the 'gh-pages' branch.
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          # Use the default GITHUB_TOKEN for authentication
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # The branch to deploy to (GitHub Pages)
+          publish_branch: gh-pages
+          # The directory to publish ('.' means the repository root)
+          publish_dir: .
+          # Replace all existing files in the target branch
+          force_orphan: true
