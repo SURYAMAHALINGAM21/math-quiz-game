@@ -1,106 +1,167 @@
+/* --- Global Styles & Background --- */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-color: #1a1a2e; /* Deep blue/purple background */
+    color: #e5e5f7; /* Light text color for contrast */
     margin: 0;
-    color: #2d3748;
+    padding: 20px;
 }
 
 .container {
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: #2e2e4f; /* Slightly lighter container color */
     padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Strong shadow for depth */
     text-align: center;
     width: 90%;
     max-width: 450px;
-    backdrop-filter: blur(10px);
-    transform: translateY(0);
-    transition: transform 0.3s ease;
-}
-
-.container:hover {
-    transform: translateY(-5px);
+    border: 1px solid #4a4a6e; /* Subtle border */
 }
 
 h1 {
-    color: #333;
-    margin-bottom: 20px;
+    color: #ff9000; /* Bright accent color for title */
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-#question-box {
+/* --- Info/Score Area --- */
+#game-area p {
+    font-size: 1.1em;
+    margin: 10px 0;
+}
+
+#high-score, #score {
+    font-weight: bold;
+    color: #4CAF50; /* Green for success/scores */
+}
+
+/* --- Level Selector --- */
+#level-select-box {
     margin: 20px 0;
+    padding: 15px;
+    border: 1px solid #4a4a6e;
+    border-radius: 8px;
+    background-color: #3b3b64;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+#difficulty {
+    padding: 10px;
+    margin-left: 10px;
+    border-radius: 6px;
+    border: 1px solid #5a5a7e;
+    font-size: 1em;
+    background-color: #4a4a6e; /* Darker dropdown */
+    color: #e5e5f7;
+    appearance: none; /* Remove default styling */
+    cursor: pointer;
+}
+
+/* --- Timer --- */
+#timer {
+    font-weight: 900;
+    color: #ff4500; /* Deep orange/red for urgency */
+    font-size: 1.2em;
+    display: inline-block;
+    padding: 0 5px;
+    min-width: 20px;
+}
+
+/* --- Question & Input Box --- */
+#question-box {
+    margin: 25px 0;
     padding: 20px;
-    border: none;
-    border-radius: 12px;
-    background-color: #f8f9fa;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    background-color: #3b3b64;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    transition: background-color 0.15s;
 }
 
 #question {
-    font-size: 1.4em;
+    font-size: 1.8em;
     font-weight: bold;
     margin-bottom: 20px;
-    color: #2d3748;
+    color: #ffeb3b; /* Yellow for high visibility */
 }
 
 #answer-input {
     padding: 12px;
-    width: 80%;
+    width: 70%;
     margin-bottom: 15px;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
+    border: 2px solid #5a5a7e;
+    border-radius: 6px;
     text-align: center;
-    font-size: 1.1em;
-    transition: all 0.3s ease;
+    font-size: 1.2em;
+    background-color: #1a1a2e;
+    color: #fff;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+    transition: border-color 0.3s;
 }
 
 #answer-input:focus {
+    border-color: #00bcd4; /* Cyan focus */
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
 }
 
+/* --- Buttons --- */
 button {
-    padding: 10px 20px;
+    padding: 12px 25px;
     margin: 5px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
-    transition: background-color 0.3s;
+    font-size: 1em;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 #start-btn, #restart-btn {
-    background-color: #28a745;
+    background-color: #4CAF50; /* Green (Success) */
     color: white;
 }
 
 #submit-btn {
-    background-color: #007bff;
-    color: white;
+    background-color: #00bcd4; /* Cyan/Teal (Action) */
+    color: #1a1a2e;
 }
 
-#start-btn:hover, #restart-btn:hover {
-    background-color: #218838;
-}
-
-#submit-btn:hover:not(:disabled) {
-    background-color: #0056b3;
+button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
+    opacity: 0.9;
 }
 
 button:disabled {
-    background-color: #ccc;
+    background-color: #5a5a7e;
+    color: #999;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
+/* --- Feedback and Game Over --- */
 .hidden {
     display: none;
 }
 
 #game-over-area h2 {
-    color: #dc3545;
+    color: #ff4500;
+    font-size: 2em;
+}
+
+/* Visual Feedback Classes */
+.correct-feedback {
+    background-color: #386f3b !important; /* Darker green */
+    border: 2px solid #4CAF50;
+}
+
+.wrong-feedback {
+    background-color: #8c3b4a !important; /* Darker red */
+    border: 2px solid #dc3545;
 }

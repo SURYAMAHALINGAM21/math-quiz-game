@@ -1,45 +1,106 @@
 let score = 0;
 let correctAnswer = 0;
 let gameIsRunning = false;
+let highscore = 0;
+let timerInterval;
 
-// DOM Elements
+// --- CONFIGURATION CONSTANT ---
+const LEVEL_SETTINGS = {
+    easy: { maxNumber: 10, operators: ['+', '-'], timeLimit: 10 },
+    medium: { maxNumber: 20, operators: ['+', '-', '*'], timeLimit: 7 },
+    hard: { maxNumber: 50, operators: ['+', '-', '*', '/'], timeLimit: 4 } // Added division for 'hard'
+};
+
+// --- DOM Elements ---
 const scoreElement = document.getElementById('score');
+const highscoreElement = document.getElementById('high-score');
+const timerElement = document.getElementById('timer');
 const questionElement = document.getElementById('question');
 const answerInput = document.getElementById('answer-input');
 const submitButton = document.getElementById('submit-btn');
 const startButton = document.getElementById('start-btn');
+const restartButton = document.getElementById('restart-btn');
+const questionBox = document.getElementById('question-box');
 const gameOverArea = document.getElementById('game-over-area');
 const gameArea = document.getElementById('game-area');
 const finalScoreElement = document.getElementById('final-score');
-const restartButton = document.getElementById('restart-btn');
+const highScoreMessage = document.getElementById('high-score-message');
+const difficultySelect = document.getElementById('difficulty'); // NEW ELEMENT
 
-// --- Core Game Functions ---
+// --- Initialization ---
+function loadHighScore() {
+    const savedScore = localStorage.getItem('mathQuizHighScore');
+    if (savedScore) {
+        highscore = parseInt(savedScore, 10);
+        highscoreElement.textContent = highscore;
+    }
+}
 
-// Function to generate a random simple math question (addition or subtraction)
+// Function to generate a random question based on the selected level
 function generateQuestion() {
-    // Generate two random numbers between 1 and 20
-    const num1 = Math.floor(Math.random() * 20) + 1;
-    const num2 = Math.floor(Math.random() * 20) + 1;
-    
-    // Randomly choose operator: 0 for +, 1 for -
-    const operator = Math.random() < 0.5 ? '+' : '-';
+    const selectedLevel = difficultySelect.value;
+    const settings = LEVEL_SETTINGS[selectedLevel];
+    const max = settings.maxNumber;
+    const operators = settings.operators;
 
+    const opIndex = Math.floor(Math.random() * operators.length);
+    const operator = operators[opIndex];
+
+    let num1 = Math.floor(Math.random() * max) + 1;
+    let num2 = Math.floor(Math.random() * max) + 1;
     let questionText = '';
     
+    // Logic for different operators and ensuring valid answers
     if (operator === '+') {
         questionText = `${num1} + ${num2} = ?`;
         correctAnswer = num1 + num2;
-    } else {
-        // Ensure the result is non-negative for simplicity
+    } else if (operator === '-') {
+        // Ensure result is non-negative
         const larger = Math.max(num1, num2);
         const smaller = Math.min(num1, num2);
         questionText = `${larger} - ${smaller} = ?`;
         correctAnswer = larger - smaller;
+    } else if (operator === '*') {
+        // Keep numbers smaller for multiplication (adjust if needed)
+        num1 = Math.floor(Math.random() * (max / 5)) + 1; 
+        num2 = Math.floor(Math.random() * (max / 5)) + 1;
+        questionText = `${num1} * ${num2} = ?`;
+        correctAnswer = num1 * num2;
+    } else if (operator === '/') {
+        // Ensure division results in a whole number
+        correctAnswer = Math.floor(Math.random() * (max / 5)) + 1;
+        num2 = Math.floor(Math.random() * 10) + 2; // Divisor
+        num1 = correctAnswer * num2; // Dividend
+        questionText = `${num1} / ${num2} = ?`;
     }
 
     questionElement.textContent = questionText;
-    answerInput.value = ''; // Clear previous answer
+    answerInput.value = '';
     answerInput.focus();
+    questionBox.classList.remove('wrong-feedback');
+    
+    // Restart the timer for the new question
+    startTimer(); 
+}
+
+// Function to start the timer for a single question
+function startTimer() {
+    clearInterval(timerInterval); // Stop any existing timer
+    
+    const selectedLevel = difficultySelect.value;
+    const timeLimit = LEVEL_SETTINGS[selectedLevel].timeLimit;
+    let timeLeft = timeLimit;
+    timerElement.textContent = timeLeft;
+    
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            endGame(true); // End game due to time up
+        }
+    }, 1000);
 }
 
 // Function to check the submitted answer
@@ -48,21 +109,24 @@ function checkAnswer() {
 
     const userAnswer = parseInt(answerInput.value, 10);
     
-    // Simple validation
-    if (isNaN(userAnswer)) {
-        alert("Please enter a valid number.");
-        answerInput.focus();
-        return;
-    }
+    if (isNaN(userAnswer)) return; 
+
+    clearInterval(timerInterval); // Stop timer while processing answer
 
     if (userAnswer === correctAnswer) {
-        // Correct answer: increase score and generate new question
         score++;
         scoreElement.textContent = score;
-        generateQuestion();
+        
+        // Correct feedback
+        questionBox.classList.add('correct-feedback');
+        setTimeout(() => {
+            questionBox.classList.remove('correct-feedback');
+            generateQuestion(); // Generate the next question
+        }, 150); 
     } else {
-        // Wrong answer: end the game
-        endGame();
+        // Wrong answer: End the game
+        questionBox.classList.add('wrong-feedback');
+        setTimeout(() => endGame(false), 500);
     }
 }
 
@@ -72,12 +136,13 @@ function startGame() {
     gameIsRunning = true;
     scoreElement.textContent = score;
     
-    // Toggle visibility
+    questionBox.classList.remove('wrong-feedback', 'correct-feedback');
+
     gameArea.classList.remove('hidden');
     gameOverArea.classList.add('hidden');
-    
-    // Enable/Disable buttons and input
     startButton.classList.add('hidden');
+    difficultySelect.disabled = true; // Disable level selection during play
+    
     submitButton.disabled = false;
     answerInput.disabled = false;
     
@@ -85,28 +150,37 @@ function startGame() {
 }
 
 // Function to stop the game
-function endGame() {
+function endGame(isTimeUp) {
     gameIsRunning = false;
-    finalScoreElement.textContent = score;
+    clearInterval(timerInterval);
     
-    // Toggle visibility
+    // High Score Logic
+    let message = isTimeUp ? `Time's up! Your final score is ${score}.` : `Incorrect Answer! Game Over.`;
+    
+    if (score > highscore) {
+        highscore = score;
+        localStorage.setItem('mathQuizHighScore', highscore);
+        highscoreElement.textContent = highscore;
+        message = `New High Score! 🎉 You reached ${score} points!`;
+    }
+
+    finalScoreElement.textContent = score;
+    highScoreMessage.textContent = message;
+
+    // Toggle visibility and controls
     gameArea.classList.add('hidden');
     gameOverArea.classList.remove('hidden');
     
-    // Disable input and submit button
     answerInput.disabled = true;
     submitButton.disabled = true;
+    startButton.classList.remove('hidden'); 
+    difficultySelect.disabled = false; // Re-enable level selection
 }
 
-// --- Event Listeners ---
 
-// Start button initiates the game
+// --- Event Listeners and Initial Load ---
 startButton.addEventListener('click', startGame);
-
-// Restart button initiates the game
 restartButton.addEventListener('click', startGame);
-
-// Submit button checks the answer
 submitButton.addEventListener('click', checkAnswer);
 
 // Allow pressing Enter key to submit the answer
@@ -115,3 +189,6 @@ answerInput.addEventListener('keydown', (event) => {
         checkAnswer();
     }
 });
+
+// Load high score when the page loads
+loadHighScore();

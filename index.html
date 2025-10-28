@@ -3,17 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Quiz Game</title>
+    <title>Multi-Level Math Quiz Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Simple Math Quiz</h1>
+        <h1>Multi-Level Math Quiz Challenge</h1>
 
         <div id="game-area">
-            <p>Score: <span id="score">0</span></p>
+            <div id="level-select-box">
+                <label for="difficulty">Choose Level:</label>
+                <select id="difficulty">
+                    <option value="easy">Easy (10s/Q)</option>
+                    <option value="medium" selected>Medium (7s/Q)</option>
+                    <option value="hard">Hard (4s/Q)</option>
+                </select>
+            </div>
+            <p>High Score: <span id="high-score">0</span> | Score: <span id="score">0</span></p>
+            <p>Time Left: <span id="timer">0</span>s (Per Question)</p>
+
             <div id="question-box">
-                <p id="question">Click Start to begin!</p>
+                <p id="question">Select a level and click Start!</p>
                 <input type="number" id="answer-input" placeholder="Your Answer" disabled>
                 <button id="submit-btn" disabled>Submit</button>
                 <button id="start-btn">Start Game</button>
@@ -21,8 +31,9 @@
         </div>
 
         <div id="game-over-area" class="hidden">
-            <h2>Game Over! 😥</h2>
+            <h2>Time's Up! ⏳ / Game Over! 😥</h2>
             <p>Your final score is: <span id="final-score">0</span></p>
+            <p id="high-score-message"></p>
             <button id="restart-btn">Play Again</button>
         </div>
     </div>
