@@ -25,7 +25,7 @@ const gameOverArea = document.getElementById('game-over-area');
 const gameArea = document.getElementById('game-area');
 const finalScoreElement = document.getElementById('final-score');
 const highScoreMessage = document.getElementById('high-score-message');
-const difficultySelect = document.getElementById('difficulty'); // NEW ELEMENT
+const difficultySelect = document.getElementById('difficulty');
 
 // --- Initialization ---
 function loadHighScore() {
@@ -36,7 +36,7 @@ function loadHighScore() {
     }
 }
 
-// Function to generate a random question based on the selected level
+// Function to generate a random question based on the selected level (No change here)
 function generateQuestion() {
     const selectedLevel = difficultySelect.value;
     const settings = LEVEL_SETTINGS[selectedLevel];
@@ -79,7 +79,7 @@ function generateQuestion() {
     startTimer(); 
 }
 
-// Function to start the timer for a single question
+// Function to start the timer for a single question (No change here)
 function startTimer() {
     clearInterval(timerInterval);
     
@@ -99,7 +99,7 @@ function startTimer() {
     }, 1000);
 }
 
-// Function to check the submitted answer
+// Function to check the submitted answer (No change here)
 function checkAnswer() {
     if (!gameIsRunning) return;
 
@@ -136,7 +136,7 @@ function startGame() {
     gameOverArea.classList.add('hidden');
     startButton.classList.add('hidden');
     
-    // ⬇️ THIS LINE PREVENTS CHANGING LEVEL MID-GAME ⬇️
+    // 🛑 CRUCIAL: Disable level selection as soon as the game begins 🛑
     difficultySelect.disabled = true; 
     
     submitButton.disabled = false;
@@ -171,16 +171,30 @@ function endGame(isTimeUp) {
     submitButton.disabled = true;
     startButton.classList.remove('hidden'); 
     
-    // ⬆️ THIS LINE RE-ENABLES THE LEVEL SELECTOR AFTER THE GAME IS OVER ⬆️
+    // ✅ CRUCIAL: Re-enable level selection now that the game has ended ✅
     difficultySelect.disabled = false; 
+}
+
+// 🆕 NEW FUNCTION: Simple Reset for 'Play Again' button
+function resetGame() {
+    // Call endGame() to ensure everything is stopped and the level selector is enabled.
+    endGame(false); 
+    
+    // Now hide the game over screen and show the start screen elements
+    gameOverArea.classList.add('hidden');
+    gameArea.classList.remove('hidden'); // Show the score/level selection area
+    questionElement.textContent = "Select a level and click Start!";
+    timerElement.textContent = "0";
+    scoreElement.textContent = "0"; // Reset visible score to 0
 }
 
 
 // --- Event Listeners and Initial Load ---
 startButton.addEventListener('click', startGame);
-// The 'Play Again' button (restartButton) calls startGame, 
-// which means the level is briefly available for selection before the next game starts.
-restartButton.addEventListener('click', startGame); 
+
+// 🔄 IMPORTANT CHANGE: The restart button now calls resetGame() instead of startGame()
+restartButton.addEventListener('click', resetGame); 
+
 submitButton.addEventListener('click', checkAnswer);
 
 // Allow pressing Enter key to submit the answer
