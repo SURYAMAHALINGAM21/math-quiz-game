@@ -8,7 +8,7 @@ let timerInterval;
 const LEVEL_SETTINGS = {
     easy: { maxNumber: 10, operators: ['+', '-'], timeLimit: 10 },
     medium: { maxNumber: 20, operators: ['+', '-', '*'], timeLimit: 7 },
-    hard: { maxNumber: 50, operators: ['+', '-', '*', '/'], timeLimit: 4 } // Added division for 'hard'
+    hard: { maxNumber: 50, operators: ['+', '-', '*', '/'], timeLimit: 4 }
 };
 
 // --- DOM Elements ---
@@ -55,22 +55,19 @@ function generateQuestion() {
         questionText = `${num1} + ${num2} = ?`;
         correctAnswer = num1 + num2;
     } else if (operator === '-') {
-        // Ensure result is non-negative
         const larger = Math.max(num1, num2);
         const smaller = Math.min(num1, num2);
         questionText = `${larger} - ${smaller} = ?`;
         correctAnswer = larger - smaller;
     } else if (operator === '*') {
-        // Keep numbers smaller for multiplication (adjust if needed)
         num1 = Math.floor(Math.random() * (max / 5)) + 1; 
         num2 = Math.floor(Math.random() * (max / 5)) + 1;
         questionText = `${num1} * ${num2} = ?`;
         correctAnswer = num1 * num2;
     } else if (operator === '/') {
-        // Ensure division results in a whole number
         correctAnswer = Math.floor(Math.random() * (max / 5)) + 1;
-        num2 = Math.floor(Math.random() * 10) + 2; // Divisor
-        num1 = correctAnswer * num2; // Dividend
+        num2 = Math.floor(Math.random() * 10) + 2;
+        num1 = correctAnswer * num2;
         questionText = `${num1} / ${num2} = ?`;
     }
 
@@ -79,13 +76,12 @@ function generateQuestion() {
     answerInput.focus();
     questionBox.classList.remove('wrong-feedback');
     
-    // Restart the timer for the new question
     startTimer(); 
 }
 
 // Function to start the timer for a single question
 function startTimer() {
-    clearInterval(timerInterval); // Stop any existing timer
+    clearInterval(timerInterval);
     
     const selectedLevel = difficultySelect.value;
     const timeLimit = LEVEL_SETTINGS[selectedLevel].timeLimit;
@@ -98,7 +94,7 @@ function startTimer() {
 
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
-            endGame(true); // End game due to time up
+            endGame(true);
         }
     }, 1000);
 }
@@ -111,20 +107,18 @@ function checkAnswer() {
     
     if (isNaN(userAnswer)) return; 
 
-    clearInterval(timerInterval); // Stop timer while processing answer
+    clearInterval(timerInterval);
 
     if (userAnswer === correctAnswer) {
         score++;
         scoreElement.textContent = score;
         
-        // Correct feedback
         questionBox.classList.add('correct-feedback');
         setTimeout(() => {
             questionBox.classList.remove('correct-feedback');
-            generateQuestion(); // Generate the next question
+            generateQuestion();
         }, 150); 
     } else {
-        // Wrong answer: End the game
         questionBox.classList.add('wrong-feedback');
         setTimeout(() => endGame(false), 500);
     }
@@ -141,7 +135,9 @@ function startGame() {
     gameArea.classList.remove('hidden');
     gameOverArea.classList.add('hidden');
     startButton.classList.add('hidden');
-    difficultySelect.disabled = true; // Disable level selection during play
+    
+    // ⬇️ THIS LINE PREVENTS CHANGING LEVEL MID-GAME ⬇️
+    difficultySelect.disabled = true; 
     
     submitButton.disabled = false;
     answerInput.disabled = false;
@@ -174,13 +170,17 @@ function endGame(isTimeUp) {
     answerInput.disabled = true;
     submitButton.disabled = true;
     startButton.classList.remove('hidden'); 
-    difficultySelect.disabled = false; // Re-enable level selection
+    
+    // ⬆️ THIS LINE RE-ENABLES THE LEVEL SELECTOR AFTER THE GAME IS OVER ⬆️
+    difficultySelect.disabled = false; 
 }
 
 
 // --- Event Listeners and Initial Load ---
 startButton.addEventListener('click', startGame);
-restartButton.addEventListener('click', startGame);
+// The 'Play Again' button (restartButton) calls startGame, 
+// which means the level is briefly available for selection before the next game starts.
+restartButton.addEventListener('click', startGame); 
 submitButton.addEventListener('click', checkAnswer);
 
 // Allow pressing Enter key to submit the answer
@@ -190,5 +190,4 @@ answerInput.addEventListener('keydown', (event) => {
     }
 });
 
-// Load high score when the page loads
 loadHighScore();
